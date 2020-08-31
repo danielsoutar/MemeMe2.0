@@ -107,12 +107,13 @@ class ViewController: UIViewController,
                            botText: bottomTextField.text,
                            image: imagePicker.image,
                            memedImage: generateMeme())
-        
-        // For future improvement, on iPad this must be a popover, and on iPhone, modal.
+
         let ac = UIActivityViewController(activityItems: [newMeme],
                                           applicationActivities: nil)
         ac.completionWithItemsHandler = { (type,completed,items,error) in
-            self.meme = newMeme
+            if completed {
+                self.meme = newMeme
+            }
             ac.dismiss(animated: true, completion: nil)
         }
         
@@ -144,7 +145,8 @@ class ViewController: UIViewController,
     // MARK: - Meme Generation and Storage
     
     func generateMeme() -> UIImage {
-        // Hide toolbar
+        // Hide toolbar and navbar
+        navbar.isHidden = true
         toolbar.isHidden = true
         
         UIGraphicsBeginImageContext(self.view.frame.size)
@@ -152,7 +154,8 @@ class ViewController: UIViewController,
         let memedImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
-        // Show toolbar
+        // Show toolbar and navbar
+        navbar.isHidden = false
         toolbar.isHidden = false
         
         return memedImage

@@ -14,12 +14,11 @@ extension ViewController: UITextFieldDelegate {
     // MARK: - Configuring Text Fields
     
     func configureTextFields() {
-        topTextField.delegate = self
-        bottomTextField.delegate = self
-        
-        topTextField.autocorrectionType = .no
-        bottomTextField.autocorrectionType = .no
-        
+        setupTextField(topTextField, DEFAULT_TOP_TEXT)
+        setupTextField(bottomTextField, DEFAULT_BOT_TEXT)
+    }
+
+    func setupTextField(_ textField: UITextField, _ defaultText: String) {
         // Note: The negative stroke width is required for coloured
         // text!
         let memeTextAttributes: [NSAttributedString.Key: Any] = [
@@ -29,13 +28,11 @@ extension ViewController: UITextFieldDelegate {
             .strokeWidth: -2
         ]
         
-        topTextField.defaultTextAttributes = memeTextAttributes
-        bottomTextField.defaultTextAttributes = memeTextAttributes
-        
-        topTextField.textAlignment = .center
-        topTextField.text = DEFAULT_TOP_TEXT
-        bottomTextField.textAlignment = .center
-        bottomTextField.text = DEFAULT_BOT_TEXT
+        textField.delegate = self
+        textField.defaultTextAttributes = memeTextAttributes
+        textField.textAlignment = .center
+        textField.text = defaultText
+        textField.autocorrectionType = .no
     }
     
     // MARK: - Implement the UITextFieldDelegate Protocol
