@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-extension ViewController: UIImagePickerControllerDelegate {
+extension MemeEditorViewController: UIImagePickerControllerDelegate {
     
     // MARK: - Logging Function for Media Types Available
     
@@ -41,6 +41,9 @@ extension ViewController: UIImagePickerControllerDelegate {
             
             let uiImagePicker = UIImagePickerController()
             uiImagePicker.delegate = self
+            // Set the source type to be the first of the media types available.
+            // This could be improved, but in practice this works with the camera/album buttons.
+            uiImagePicker.sourceType = mediaTypes[0].mediaType
             
             if usePopover {
                 // Stupidly, a PopoverPresentationController cannot be created by you. Instead
@@ -98,7 +101,8 @@ extension ViewController: UIImagePickerControllerDelegate {
         if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             imagePicker.image = image
             // Enable sharing as an image is now available.
-            navbar.topItem?.leftBarButtonItem?.isEnabled = true
+            sharingEnabled = true
+            navbar.topItem?.leftBarButtonItem?.isEnabled = sharingEnabled
         }
         
         dismiss(animated: true, completion: nil)

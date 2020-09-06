@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:ImagePickerTest.xcodeproj">
+      location = "self:/Users/danielsoutar/Documents/Udacity/iOS-Course/MemeMe2/MemeMe2.0.xcodeproj">
    </FileRef>
 </Workspace>

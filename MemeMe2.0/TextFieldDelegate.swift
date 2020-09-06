@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-extension ViewController: UITextFieldDelegate {
+extension MemeEditorViewController: UITextFieldDelegate {
     
     // MARK: - Configuring Text Fields
     

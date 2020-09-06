@@ -13,7 +13,7 @@ struct MediaType {
     var identifier: String = ""
 }
 
-class ViewController: UIViewController,
+class MemeEditorViewController: UIViewController,
                       UINavigationControllerDelegate,
                       UIPopoverPresentationControllerDelegate {
     
@@ -47,6 +47,12 @@ class ViewController: UIViewController,
     
     var meme: Meme?
     
+    // A closure that executes the 'reloadData()' function of the parent controller.
+    // This ensures the view properly displays the data upon completion of the
+    // activity handler, as it does not update correctly on the first reappearance
+    // otherwise.
+    var reloader: (() -> Void)?
+
     // MARK: - Switch for determining when to enable sharing
     
     var sharingEnabled = false
@@ -73,7 +79,7 @@ class ViewController: UIViewController,
                               action: #selector(cancelTapped))
         
         // Disable sharing until an image is chosen.
-        navbar.topItem?.leftBarButtonItem?.isEnabled = false
+        navbar.topItem?.leftBarButtonItem?.isEnabled = sharingEnabled
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -107,14 +113,24 @@ class ViewController: UIViewController,
                            botText: bottomTextField.text,
                            image: imagePicker.image,
                            memedImage: generateMeme())
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
-        let ac = UIActivityViewController(activityItems: [newMeme],
+        let ac = UIActivityViewController(activityItems: [newMeme.memedImage!],
                                           applicationActivities: nil)
         ac.completionWithItemsHandler = { (type,completed,items,error) in
             if completed {
-                self.meme = newMeme
+                // Add to the global memes array.
+                appDelegate.memes.append(newMeme)
             }
             ac.dismiss(animated: true, completion: nil)
+            if completed {
+                // Dismiss the editor and reload the underlying controller's
+                // copy of the data.
+                self.dismiss(animated: true, completion: nil)
+                if let reloader = self.reloader {
+                    reloader()
+                }
+            }
         }
         
         if UIDevice.current.userInterfaceIdiom == .pad {
@@ -137,9 +153,16 @@ class ViewController: UIViewController,
     // Cancel the meme generated. Resets the text fields and image picker.
     // Also disables sharing again, as no image is present.
     @objc func cancelTapped() {
-        configureTextFields()
-        self.imagePicker.image = nil
-        navbar.topItem?.leftBarButtonItem?.isEnabled = false
+        if !sharingEnabled {
+            // Pop off to the underlying view controller.
+            dismiss(animated: true, completion: nil)
+        } else {
+            // Cancel the editing done so far.
+            configureTextFields()
+            self.imagePicker.image = nil
+            sharingEnabled = false
+            navbar.topItem?.leftBarButtonItem?.isEnabled = sharingEnabled
+        }
     }
     
     // MARK: - Meme Generation and Storage
@@ -149,6 +172,8 @@ class ViewController: UIViewController,
         navbar.isHidden = true
         toolbar.isHidden = true
         
+        // Keep the enclosing view, in case the input text runs over the
+        // edge of the image.
         UIGraphicsBeginImageContext(self.view.frame.size)
         view.drawHierarchy(in: self.view.frame, afterScreenUpdates: true)
         let memedImage = UIGraphicsGetImageFromCurrentImageContext()!
